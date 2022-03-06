@@ -19,12 +19,14 @@ class Raven {
     this.y = Math.random() * (canvas.height - this.height);
     this.directionX = Math.random() * 5 + 3;
     this.directionY = Math.random() * 5 - 2.5;
+    this.markedForDeath = false;
   }
   update() {
     this.x -= this.directionX;
+    if (this.x < 0 - this.width) this.markedForDeath = true;
   }
   draw() {
-    ctx.fillStyle = "papayawhip";
+    ctx.fillStyle = "peachpuff";
     ctx.fillRect(this.x, this.y, this.width, this.height);
   }
 }
@@ -37,8 +39,10 @@ function animate(timestamp) {
   if (timeToNextRaven > ravenInterval) {
     ravens.push(new Raven());
     timeToNextRaven = 0;
-    console.log(ravens);
   }
+  [...ravens].forEach((taco) => taco.update());
+  [...ravens].forEach((taco) => taco.draw());
+  ravens = ravens.filter((burrito) => !burrito.markedForDeath);
   requestAnimationFrame(animate);
 }
 
