@@ -1,0 +1,29 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  outline: none;
+  list-style: none;
+  text-decoration: none;
+}
+
+html {
+  font-size: 62.5;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: linear-gradient(to bottom, firebrick, mintcream, cornflowerblue);
+  width: 100vh;
+  height: 100vh;
+  overflow: hidden;
+}
+
+canvas {
+  /* background: coral; */
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
