@@ -20,14 +20,19 @@ class Raven {
     this.directionX = Math.random() * 5 + 3;
     this.directionY = Math.random() * 5 - 2.5;
     this.markedForDeath = false;
+    this.image = new Image();
+    this.image.src = "raven.png";
+    this.spriteWidth = 271;
+    this.spriteHeight = 194;
   }
   update() {
     this.x -= this.directionX;
     if (this.x < 0 - this.width) this.markedForDeath = true;
   }
   draw() {
-    ctx.fillStyle = "peachpuff";
+    ctx.fillStyle = "mintcream";
     ctx.fillRect(this.x, this.y, this.width, this.height);
+    ctx.drawImage(this.image, this.x, this.y);
   }
 }
 
