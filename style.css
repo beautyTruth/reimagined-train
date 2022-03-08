@@ -28,6 +28,6 @@ canvas {
   height: 100%;
 }
 
-/* #shootieVonShooterson {
-  background-color: aqua;
-} */
+#shootieVonShooterson {
+  opacity: 0;
+}

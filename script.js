@@ -64,8 +64,8 @@ class Raven {
     }
   }
   draw() {
-    ctx.fillStyle = this.color;
-    ctx.fillRect(this.x, this.y, this.width, this.height);
+    collisionCtx.fillStyle = this.color;
+    collisionCtx.fillRect(this.x, this.y, this.width, this.height);
     ctx.drawImage(
       this.image,
       this.frame * this.spriteWidth,
@@ -88,18 +88,33 @@ function drawScore() {
 }
 
 window.addEventListener("click", function (e) {
-  const detectPixelColor = ctx.getImageData(e.x, e.y, 1, 1);
+  const detectPixelColor = collisionCtx.getImageData(e.x, e.y, 1, 1);
   console.log(detectPixelColor);
+  const pc = detectPixelColor.data;
+  ravens.forEach((peach) => {
+    if (
+      peach.randomColors[0] === pc[0] &&
+      peach.randomColors[1] === pc[1] &&
+      peach.randomColors[2] === pc[2]
+    ) {
+      peach.markedForDeath = true;
+      ++score;
+    }
+  });
 });
 
 function animate(timestamp) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  collisionCtx.clearRect(0, 0, canvas.width, canvas.height);
   let deltatime = timestamp - lastTime;
   lastTime = timestamp;
   timeToNextRaven += deltatime;
   if (timeToNextRaven > ravenInterval) {
     ravens.push(new Raven());
     timeToNextRaven = 0;
+    ravens.sort(function (a, b) {
+      return a.width - b.width;
+    });
   }
   drawScore();
   [...ravens].forEach((taco) => taco.update(deltatime));
