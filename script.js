@@ -4,11 +4,16 @@ const canvas = document.querySelector("#shootieMcShooterson");
 const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
+const collisionCanvas = document.querySelector("#shootieVonShooterson");
+const collisionCtx = collisionCanvas.getContext("2d");
+collisionCanvas.width = window.innerWidth;
+collisionCanvas.height = window.innerHeight;
 
 let timeToNextRaven = 0;
 let ravenInterval = 500;
 let lastTime = 0;
 let score = 0;
+ctx.font = "50px Impact";
 
 let ravens = [];
 
@@ -30,6 +35,19 @@ class Raven {
     this.maxFrame = 4;
     this.timeSinceFlap = 0;
     this.flapInterval = Math.random() * 50 + 50;
+    this.randomColors = [
+      Math.floor(Math.random() * 255),
+      Math.floor(Math.random() * 255),
+      Math.floor(Math.random() * 255),
+    ];
+    this.color =
+      "rgb(" +
+      this.randomColors[0] +
+      "," +
+      this.randomColors[1] +
+      "," +
+      this.randomColors[2] +
+      ")";
   }
   update(deltatime) {
     if (this.y < 0 || this.y > canvas.height - this.height) {
@@ -46,8 +64,8 @@ class Raven {
     }
   }
   draw() {
-    ctx.fillStyle = "mintcream";
-    ctx.strokeRect(this.x, this.y, this.width, this.height);
+    ctx.fillStyle = this.color;
+    ctx.fillRect(this.x, this.y, this.width, this.height);
     ctx.drawImage(
       this.image,
       this.frame * this.spriteWidth,
@@ -65,7 +83,14 @@ class Raven {
 function drawScore() {
   ctx.fillStyle = "cornflowerblue";
   ctx.fillText("Score: " + score, 50, 75);
+  ctx.fillStyle = "papayawhip";
+  ctx.fillText("Score: " + score, 53, 77);
 }
+
+window.addEventListener("click", function (e) {
+  const detectPixelColor = ctx.getImageData(e.x, e.y, 1, 1);
+  console.log(detectPixelColor);
+});
 
 function animate(timestamp) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -76,6 +101,7 @@ function animate(timestamp) {
     ravens.push(new Raven());
     timeToNextRaven = 0;
   }
+  drawScore();
   [...ravens].forEach((taco) => taco.update(deltatime));
   [...ravens].forEach((taco) => taco.draw());
   ravens = ravens.filter((burrito) => !burrito.markedForDeath);
