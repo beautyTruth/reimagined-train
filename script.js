@@ -13,6 +13,7 @@ let timeToNextRaven = 0;
 let ravenInterval = 500;
 let lastTime = 0;
 let score = 0;
+let gameOver = false;
 ctx.font = "50px Impact";
 
 let ravens = [];
@@ -62,6 +63,7 @@ class Raven {
       else ++this.frame;
       this.timeSinceFlap = 0;
     }
+    if (this.x < 0 - this.width) gameOver = true;
   }
   draw() {
     collisionCtx.fillStyle = this.color;
@@ -121,11 +123,29 @@ class Explosion {
   }
 }
 
+let particles = [];
+
 function drawScore() {
   ctx.fillStyle = "cornflowerblue";
   ctx.fillText("Score: " + score, 50, 75);
   ctx.fillStyle = "papayawhip";
   ctx.fillText("Score: " + score, 53, 77);
+}
+
+function drawGameOver() {
+  ctx.textAlign = "center";
+  ctx.fillStyle = "aqua";
+  ctx.fillText(
+    "YOU SUCK!!! Score: " + score,
+    canvas.width / 2 + 3,
+    canvas.height / 2 + 3
+  );
+  ctx.fillStyle = "cornflowerblue";
+  ctx.fillText(
+    "YOU SUCK!!! Score: " + score,
+    canvas.width / 2,
+    canvas.height / 2
+  );
 }
 
 window.addEventListener("click", function (e) {
@@ -164,7 +184,8 @@ function animate(timestamp) {
   [...ravens, ...explosions].forEach((taco) => taco.draw());
   ravens = ravens.filter((burrito) => !burrito.markedForDeath);
   explosions = explosions.filter((burrito) => !burrito.markedForDeath);
-  requestAnimationFrame(animate);
+  if (!gameOver) requestAnimationFrame(animate);
+  else drawGameOver();
 }
 
 animate(0);
