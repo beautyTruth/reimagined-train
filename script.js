@@ -49,6 +49,7 @@ class Raven {
       "," +
       this.randomColors[2] +
       ")";
+    this.hasTrail = Math.random() > 0.5;
   }
   update(deltatime) {
     if (this.y < 0 || this.y > canvas.height - this.height) {
@@ -62,6 +63,11 @@ class Raven {
       if (this.frame > this.maxFrame) this.frame = 0;
       else ++this.frame;
       this.timeSinceFlap = 0;
+      if (this.hasTrail) {
+        for (let i = 0; i < 5; ++i) {
+          particles.push(new Particle(this.x, this.y, this.width, this.color));
+        }
+      }
     }
     if (this.x < 0 - this.width) gameOver = true;
   }
@@ -125,6 +131,33 @@ class Explosion {
 
 let particles = [];
 
+class Particle {
+  constructor(x, y, size, color) {
+    this.size = size;
+    this.x = x + this.size / 2 + Math.random() * 50 - 25;
+    this.y = y + this.size / 3 + Math.random() * 50 - 25;
+    this.radius = (Math.random() * this.size) / 10;
+    this.maxRadius = Math.random() * 20 + 35;
+    this.markedForDeath = false;
+    this.speedX = Math.random() * 1 + 0.5;
+    this.color = color;
+  }
+  update() {
+    this.x += this.speedX;
+    this.radius += 0.5;
+    if (this.radius > this.maxRadius - 5) this.markedForDeath = true;
+  }
+  draw() {
+    ctx.save();
+    ctx.globalAlpha = 1 - this.radius / this.maxRadius;
+    ctx.beginPath();
+    ctx.fillStyle = this.color;
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
 function drawScore() {
   ctx.fillStyle = "cornflowerblue";
   ctx.fillText("Score: " + score, 50, 75);
@@ -180,10 +213,13 @@ function animate(timestamp) {
     });
   }
   drawScore();
-  [...ravens, ...explosions].forEach((taco) => taco.update(deltatime));
-  [...ravens, ...explosions].forEach((taco) => taco.draw());
+  [...particles, ...ravens, ...explosions].forEach((taco) =>
+    taco.update(deltatime)
+  );
+  [...particles, ...ravens, ...explosions].forEach((taco) => taco.draw());
   ravens = ravens.filter((burrito) => !burrito.markedForDeath);
   explosions = explosions.filter((burrito) => !burrito.markedForDeath);
+  particles = particles.filter((burrito) => !burrito.markedForDeath);
   if (!gameOver) requestAnimationFrame(animate);
   else drawGameOver();
 }
