@@ -8,6 +8,7 @@ canvas.height = window.innerHeight;
 let timeToNextRaven = 0;
 let ravenInterval = 500;
 let lastTime = 0;
+let score = 0;
 
 let ravens = [];
 
@@ -27,12 +28,22 @@ class Raven {
     this.image.src = "raven.png";
     this.frame = 0;
     this.maxFrame = 4;
+    this.timeSinceFlap = 0;
+    this.flapInterval = Math.random() * 50 + 50;
   }
-  update() {
+  update(deltatime) {
+    if (this.y < 0 || this.y > canvas.height - this.height) {
+      this.directionY = -this.directionY;
+    }
     this.x -= this.directionX;
+    this.y += this.directionY;
     if (this.x < 0 - this.width) this.markedForDeath = true;
-    if (this.frame > this.maxFrame) this.frame = 0;
-    else ++this.frame;
+    this.timeSinceFlap += deltatime;
+    if (this.timeSinceFlap > this.flapInterval) {
+      if (this.frame > this.maxFrame) this.frame = 0;
+      else ++this.frame;
+      this.timeSinceFlap = 0;
+    }
   }
   draw() {
     ctx.fillStyle = "mintcream";
@@ -51,6 +62,11 @@ class Raven {
   }
 }
 
+function drawScore() {
+  ctx.fillStyle = "cornflowerblue";
+  ctx.fillText("Score: " + score, 50, 75);
+}
+
 function animate(timestamp) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   let deltatime = timestamp - lastTime;
@@ -60,7 +76,7 @@ function animate(timestamp) {
     ravens.push(new Raven());
     timeToNextRaven = 0;
   }
-  [...ravens].forEach((taco) => taco.update());
+  [...ravens].forEach((taco) => taco.update(deltatime));
   [...ravens].forEach((taco) => taco.draw());
   ravens = ravens.filter((burrito) => !burrito.markedForDeath);
   requestAnimationFrame(animate);
