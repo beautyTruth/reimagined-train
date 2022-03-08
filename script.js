@@ -80,6 +80,47 @@ class Raven {
   }
 }
 
+let explosions = [];
+class Explosion {
+  constructor(x, y, size) {
+    this.image = new Image();
+    this.image.src = "dust_cloud.png";
+    this.spriteWidth = 200;
+    this.spriteHeight = 179;
+    this.size = size;
+    this.x = x;
+    this.y = y;
+    this.frame = 0;
+    this.sound = new Audio();
+    this.sound.src = "fart.mp3";
+    this.timeSinceLastFrame = 0;
+    this.frameInterval = 200;
+    this.markedForDeath = false;
+  }
+  update(deltatime) {
+    if (this.frame === 0) this.sound.play();
+    this.timeSinceLastFrame += deltatime;
+    if (this.timeSinceLastFrame > this.frameInterval) {
+      ++this.frame;
+      this.timeSinceLastFrame = 0;
+      if (this.frame > 5) this.markedForDeath = true;
+    }
+  }
+  draw() {
+    ctx.drawImage(
+      this.image,
+      this.frame * this.spriteWidth,
+      0,
+      this.spriteWidth,
+      this.spriteHeight,
+      this.x,
+      this.y - this.size / 4,
+      this.size,
+      this.size
+    );
+  }
+}
+
 function drawScore() {
   ctx.fillStyle = "cornflowerblue";
   ctx.fillText("Score: " + score, 50, 75);
@@ -89,7 +130,6 @@ function drawScore() {
 
 window.addEventListener("click", function (e) {
   const detectPixelColor = collisionCtx.getImageData(e.x, e.y, 1, 1);
-  console.log(detectPixelColor);
   const pc = detectPixelColor.data;
   ravens.forEach((peach) => {
     if (
@@ -97,8 +137,11 @@ window.addEventListener("click", function (e) {
       peach.randomColors[1] === pc[1] &&
       peach.randomColors[2] === pc[2]
     ) {
+      // collision detected by color
       peach.markedForDeath = true;
       ++score;
+      explosions.push(new Explosion(peach.x, peach.y, peach.width));
+      console.log(explosions);
     }
   });
 });
@@ -117,9 +160,10 @@ function animate(timestamp) {
     });
   }
   drawScore();
-  [...ravens].forEach((taco) => taco.update(deltatime));
-  [...ravens].forEach((taco) => taco.draw());
+  [...ravens, ...explosions].forEach((taco) => taco.update(deltatime));
+  [...ravens, ...explosions].forEach((taco) => taco.draw());
   ravens = ravens.filter((burrito) => !burrito.markedForDeath);
+  explosions = explosions.filter((burrito) => !burrito.markedForDeath);
   requestAnimationFrame(animate);
 }
 
